@@ -45,7 +45,7 @@ Indian Legal Question Answer Dataset used for training and retrieval.
 
 1️⃣ Clone Repository:
 
-git clone https://github.com/YOUR_USERNAME/AI-Legal-Assistant-Indian-Law.git
+git clone https://github.com/Manthan0603/AI-Legal-Assistant-Indian-Law.git
 
 cd AI-Legal-Assistant-Indian-Law
 
