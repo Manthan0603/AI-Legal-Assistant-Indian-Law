@@ -26,6 +26,20 @@ from groq import Groq
 import re
 import altair as alt
 from sentence_transformers import SentenceTransformer
+import datetime
+
+# Initialize session variables
+if "request_count" not in st.session_state:
+    st.session_state.request_count = 0
+    st.session_state.date = datetime.date.today()
+
+# Reset request count if new day
+if st.session_state.date != datetime.date.today():
+    st.session_state.request_count = 0
+    st.session_state.date = datetime.date.today()
+
+# ✅ STEP 3: LIMIT (PUT HERE 👇)
+DAILY_LIMIT = 40
 
 # Initialize Groq Client
 # NOTE: Your API key is stored in .streamlit/secrets.toml
@@ -782,15 +796,24 @@ def hybrid_search_legal_answer(user_question):
 def ask_llm(prompt):
     try:
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",   # best free model
+            model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3
+            temperature=0.3,
+            max_tokens=500
         )
-        return response.choices[0].message.content
+
+        content = response.choices[0].message.content
+
+        # ✅ Token tracking
+        input_tokens = response.usage.prompt_tokens
+        output_tokens = response.usage.completion_tokens
+        total_tokens = response.usage.total_tokens
+
+        return content, input_tokens, output_tokens, total_tokens
 
     except Exception as e:
-        return f"⚠️ AI Error: {str(e)}"
-
+        return f"⚠️ Error: {str(e)}", 0, 0, 0
+        
 # =================================================
 # FUNCTION: typing_effect
 # PURPOSE:
@@ -1521,6 +1544,12 @@ elif page == "Chat Assistant":
 
     # 3. Process Query
     if active_q:
+    
+        # 🚨 STEP 1: LIMIT CHECK (ADD THIS HERE)
+        if st.session_state.request_count >= DAILY_LIMIT:
+            st.error("⚠️ Daily limit reached. Try again tomorrow.")
+            st.stop()
+
         msg_idx = len(st.session_state.messages)
         st.session_state.messages.append(("user", active_q))
         with st.chat_message("user", avatar="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iOCIgZmlsbD0iIzNiODJmNiIvPjxwYXRoIGQ9Ik0xMiAxMkMxNC4yMSAxMiAxNiAxMC4yMSAxNiA4QzE2IDUuNzkgMTQuMjEgNCAxMiA0QzkuNzkgNCA4IDUuNzkgOCA4QzggMTAuMjEgOS43OSAxMiAxMiAxMlpNMTIgMTRDOS4zMyAxNCA0IDE1LjM0IDQgMThWMjBIMjBWMThDMjAgMTUuMzQgMTQuNjcgMTQgMTIgMTRaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg=="):
@@ -1539,8 +1568,16 @@ elif page == "Chat Assistant":
                 p_name = case_res.get("case_name", "Case")
                 st.markdown(header)
                 with st.spinner("Analyzing legal case..."):
-                    response = ask_llm(prompt)
-                typing_effect(response)
+                    response, in_tok, out_tok, total_tok = ask_llm(prompt)
+
+                    typing_effect(response)
+
+                    # 🚨 STEP 2: INCREMENT COUNT (ADD THIS)
+                    st.session_state.request_count += 1
+
+                    # 🚨 STEP 3: SHOW USAGE (OPTIONAL BUT GOOD)
+                    st.caption(f"🧠 Used: {st.session_state.request_count}/{DAILY_LIMIT}")
+                    st.caption(f"📊 Tokens: {total_tok}")
                 render_confidence_ui(conf)
                 f_resp = header + "\n" + response
                 
