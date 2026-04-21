@@ -41,7 +41,7 @@ if st.session_state.date != datetime.date.today():
     st.session_state.date = datetime.date.today()
 
 # Daily limit
-DAILY_LIMIT = 40
+DAILY_LIMIT = 10
 
 # Initialize Groq Client
 # NOTE: Your API key is stored in .streamlit/secrets.toml
