@@ -966,10 +966,12 @@ IMPORTANT:
 - Keep structure clean and readable
 - Follow format EXACTLY
 """
+    
     # =============================
     # STEP 4b — QUERY INTENT DETECTION
     # =============================
     query_lower_intent = user_question.lower()
+
     if any(word in query_lower_intent for word in ["legal issue", "what is the issue", "problem"]):
         prompt += "\n[FOCUS INSTRUCTION]: Focus ONLY on the Legal Issue section. Expand it with at least 4 bullet points."
     elif any(word in query_lower_intent for word in ["court decision", "what did the court", "judge decide", "ruling"]):
