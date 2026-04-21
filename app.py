@@ -10,21 +10,27 @@
 # Pandas/Numpy → Data handling
 # Matplotlib → Visualization
 # FAISS → Vector similarity search
-# Ollama → LLM interaction
+# Groq → LLM interaction
 # SentenceTransformer → Text embeddings
 
 
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+
 import json
 import faiss
-import ollama
 import time
+from groq import Groq
+
 import re
+import altair as alt
 from sentence_transformers import SentenceTransformer
 
+# Initialize Groq Client
+# NOTE: Your API key is stored in .streamlit/secrets.toml
+# Do NOT place the actual 'gsk_...' key as the index in st.secrets[...]
+client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 # =================================================
 # FUNCTION: get_case_subtype
@@ -766,34 +772,41 @@ def hybrid_search_legal_answer(user_question):
 
 
 # =================================================
-# FUNCTION: ask_mistral_stream
+# FUNCTION: ask_llm
 # PURPOSE:
-# Sends prompt to Mistral LLM via Ollama
-# Streams response in real-time
+# Sends prompt to Llama-3-70B via Groq API
+# Replaces old local Ollama integration
 # =================================================
 
 
-def ask_mistral_stream(prompt):
-
+def ask_llm(prompt):
     try:
-        from ollama import Client
-        # Set a long timeout so Ollama doesn't time out while loading the model into VRAM
-        client = Client(host='http://127.0.0.1:11434', timeout=300.0)
-        
-        response = client.chat(
-            model="mistral",
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",   # best free model
             messages=[{"role": "user", "content": prompt}],
-            stream=True
+            temperature=0.3
         )
-        for chunk in response:
-            if "message" in chunk and "content" in chunk["message"]:
-                yield chunk["message"]["content"]
+        return response.choices[0].message.content
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
-        print("❌ Ollama Error:", repr(e))
-        yield f"⚠️ AI temporarily unavailable. Error: {repr(e)}. Showing best matched case."
+        return f"⚠️ AI Error: {str(e)}"
+
+# =================================================
+# FUNCTION: typing_effect
+# PURPOSE:
+# Simulates a typing effect for a better AI experience
+# =================================================
+def typing_effect(text):
+    placeholder = st.empty()
+    displayed_text = ""
+
+    for char in text:
+        displayed_text += char
+        placeholder.markdown(displayed_text + "▌")
+        time.sleep(0.003) # High-speed professional legal typing
+
+    placeholder.markdown(displayed_text)
+    return displayed_text
 
 
 # =================================================
@@ -1525,10 +1538,11 @@ elif page == "Chat Assistant":
             else:
                 p_name = case_res.get("case_name", "Case")
                 st.markdown(header)
-                with st.spinner("Analyzing..."):
-                    llm_out = st.write_stream(ask_mistral_stream(prompt))
+                with st.spinner("Analyzing legal case..."):
+                    response = ask_llm(prompt)
+                typing_effect(response)
                 render_confidence_ui(conf)
-                f_resp = header + "\n" + llm_out
+                f_resp = header + "\n" + response
                 
                 # HTML PDF Gen
                 pdf_h = generate_brief_html(
@@ -1537,7 +1551,7 @@ elif page == "Chat Assistant":
                     case_type=case_res.get("case_subtype", "N/A"),
                     user_question=active_q,
                     header_content=header,
-                    assistant_response=llm_out
+                    assistant_response=response
                 )
                 st.download_button(label=":material/picture_as_pdf: Download Case Brief (PDF)", data=pdf_h.encode("utf-8"), file_name=f"{p_name[:30]}.html", mime="text/html", key=f"pdf_l_{msg_idx}", type="primary")
                 p_pay = {"html": pdf_h, "name": p_name}
@@ -1624,7 +1638,7 @@ elif page == "Analytics":
         type_counts.columns = ["Case Type", "Case Counts"]
     
         # Create Interactive Donut Chart
-        import altair as alt
+
         
         # Base pie chart
         pie_chart = alt.Chart(type_counts).mark_arc(innerRadius=90, stroke="#020617", strokeWidth=1).encode(
