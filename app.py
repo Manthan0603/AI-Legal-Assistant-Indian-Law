@@ -41,7 +41,7 @@ if st.session_state.date != datetime.date.today():
     st.session_state.date = datetime.date.today()
 
 # Daily limit
-DAILY_LIMIT = 10
+DAILY_LIMIT = 40
 
 # Initialize Groq Client
 # NOTE: Your API key is stored in .streamlit/secrets.toml
@@ -886,16 +886,19 @@ def build_chatbot_context(user_question, case_result=None):
     # STEP 3 — Build Context
     # =============================
     context = f"""
-Case Name: {case_name}
-Case Category: {case_type}
-Judgment Date: {judgment_date}
-Case Details: - Case Name: {case_name} - Category: {case_type} - Judgment Date: {judgment_date}  Full Case Explanation: {case_answer}
+Case Details:
+- Case Name: {case_name}
+- Category: {case_type}
+- Judgment Date: {judgment_date}
+
+Full Case Explanation:
+{case_answer}
 """
 
     # =============================
     # STEP 4 — STRONG PROMPT CONTROL
     # =============================
-   prompt = f"""
+    prompt = f"""
 You are a highly experienced Indian Legal Analyst.
 
 IMPORTANT:
@@ -941,6 +944,7 @@ IMPORTANT:
 - Avoid vague statements like "court found guilty"
 - Add logical explanation
 """
+
     # =============================
     # STEP 4b — QUERY INTENT DETECTION
     # =============================
