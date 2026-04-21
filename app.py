@@ -28,17 +28,19 @@ import altair as alt
 from sentence_transformers import SentenceTransformer
 import datetime
 
-# Initialize session variables
+# =================================================
+# USAGE TRACKING & SESSION STATE
+# =================================================
 if "request_count" not in st.session_state:
     st.session_state.request_count = 0
     st.session_state.date = datetime.date.today()
 
-# Reset request count if new day
+# Reset daily
 if st.session_state.date != datetime.date.today():
     st.session_state.request_count = 0
     st.session_state.date = datetime.date.today()
 
-# ✅ STEP 3: LIMIT (PUT HERE 👇)
+# Daily limit
 DAILY_LIMIT = 40
 
 # Initialize Groq Client
@@ -804,7 +806,6 @@ def ask_llm(prompt):
 
         content = response.choices[0].message.content
 
-        # ✅ Token tracking
         input_tokens = response.usage.prompt_tokens
         output_tokens = response.usage.completion_tokens
         total_tokens = response.usage.total_tokens
@@ -812,8 +813,8 @@ def ask_llm(prompt):
         return content, input_tokens, output_tokens, total_tokens
 
     except Exception as e:
-        return f"⚠️ Error: {str(e)}", 0, 0, 0
-        
+        return f"Error: {str(e)}", 0, 0, 0
+
 # =================================================
 # FUNCTION: typing_effect
 # PURPOSE:
@@ -1544,8 +1545,6 @@ elif page == "Chat Assistant":
 
     # 3. Process Query
     if active_q:
-    
-        # 🚨 STEP 1: LIMIT CHECK (ADD THIS HERE)
         if st.session_state.request_count >= DAILY_LIMIT:
             st.error("⚠️ Daily limit reached. Try again tomorrow.")
             st.stop()
@@ -1569,15 +1568,18 @@ elif page == "Chat Assistant":
                 st.markdown(header)
                 with st.spinner("Analyzing legal case..."):
                     response, in_tok, out_tok, total_tok = ask_llm(prompt)
+                
+                typing_effect(response)
 
-                    typing_effect(response)
+                # Increment usage
+                st.session_state.request_count += 1
 
-                    # 🚨 STEP 2: INCREMENT COUNT (ADD THIS)
-                    st.session_state.request_count += 1
-
-                    # 🚨 STEP 3: SHOW USAGE (OPTIONAL BUT GOOD)
-                    st.caption(f"🧠 Used: {st.session_state.request_count}/{DAILY_LIMIT}")
-                    st.caption(f"📊 Tokens: {total_tok}")
+                # Show usage
+                st.caption(f"🧠 Used: {st.session_state.request_count}/{DAILY_LIMIT}")
+                st.caption(f"📊 Tokens: {total_tok} (Input: {in_tok}, Output: {out_tok})")
+                
+                # Progress Bar
+                st.progress(st.session_state.request_count / DAILY_LIMIT)
                 render_confidence_ui(conf)
                 f_resp = header + "\n" + response
                 
