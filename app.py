@@ -800,8 +800,8 @@ def ask_llm(prompt):
         response = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-            max_tokens=500
+            temperature=0.5,
+            max_tokens=800
         )
 
         content = response.choices[0].message.content
@@ -889,64 +889,58 @@ def build_chatbot_context(user_question, case_result=None):
 Case Name: {case_name}
 Case Category: {case_type}
 Judgment Date: {judgment_date}
-Case Summary: {case_answer}
+Case Details: - Case Name: {case_name} - Category: {case_type} - Judgment Date: {judgment_date}  Full Case Explanation: {case_answer}
 """
 
     # =============================
     # STEP 4 — STRONG PROMPT CONTROL
     # =============================
-    prompt = f"""
-You are a professional AI Legal Assistant for Indian Case Law.
+   prompt = f"""
+You are a highly experienced Indian Legal Analyst.
 
-===============================
-STRICT SYSTEM RULES (DO NOT VIOLATE):  
-- You MUST answer using ONLY the given case.
-- You MUST NOT give general law definition.
-- You MUST NOT use outside knowledge.
-- If case info is limited → say "Based on available case data..."
+IMPORTANT:
+- Use ONLY the given case data
+- Do NOT hallucinate
+- But provide detailed legal reasoning
 
-===============================
-LEGAL CASE DATA:
+CASE DATA:
 {context}
-===============================
 
 USER QUESTION:
 {user_question}
 
-===============================
-TASK:
-Explain the case clearly to a person with NO legal background.
+INSTRUCTIONS:
 
-===============================
-OUTPUT FORMAT (STRICT):
+1. Explain in a structured but PROFESSIONAL legal manner
+2. Avoid generic statements
+3. Expand reasoning using legal interpretation
+4. If data is limited, logically infer but stay grounded
 
-:material/receipt_long: What Happened:
-- Explain the incident in simple terms (at least 2 bullet points)
+FORMAT:
 
-:material/menu_book: Background:
-- What led to the situation? (at least 2 bullet points)
+🔹 What Happened:
+- Explain incident clearly with context
 
-:material/gavel: Legal Issue:
-- What problem did the court need to solve? (at least 2 bullet points)
+🔹 Background:
+- Explain possible cause, legal situation
 
-:material/account_balance: Court Decision:
-- What did the court decide? (at least 2 bullet points)
+🔹 Legal Issue:
+- Explain core legal questions deeply
 
-:material/psychology: Reason:
-- Why did the court take this decision? (at least 2 bullet points)
+🔹 Court Decision:
+- Clearly state judgment
 
-:material/label: Final Outcome:
-- What was the final result (punishment / verdict)? (at least 2 bullet points)
+🔹 Reasoning:
+- Explain WHY court decided (IMPORTANT — detailed)
 
-===============================
+🔹 Final Outcome:
+- Explain result clearly
+
 IMPORTANT:
-- Use simple, everyday English
-- Keep answers short and clear
-- Use bullet points only
-- Do NOT generate stories or puzzles
-- Do NOT include unrelated sections
+- Do NOT repeat lines
+- Avoid vague statements like "court found guilty"
+- Add logical explanation
 """
-
     # =============================
     # STEP 4b — QUERY INTENT DETECTION
     # =============================
