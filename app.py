@@ -898,7 +898,7 @@ Full Case Explanation:
     # =============================
     # STEP 4 — STRONG PROMPT CONTROL
     # =============================
-prompt = f"""
+    prompt = f"""
 You are a professional AI Legal Assistant for Indian Case Law.
 
 ===============================
