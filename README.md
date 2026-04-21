@@ -1,113 +1,233 @@
-⚖️ AI Legal Assistant for Indian Case Law
+# ⚖️ AI Legal Assistant – Indian Case Law
 
-📌 Project Overview:
+An intelligent AI-powered legal assistant designed to simplify and explain Indian case law using advanced NLP, semantic search, and LLM-based reasoning.
 
-AI Legal Assistant is an intelligent legal chatbot designed to answer Indian legal case-related questions using AI-based semantic search and Large Language Models (LLMs).
-The system retrieves relevant legal cases from the IndicLegalQA dataset and generates easy-to-understand legal explanations for users.
+---
 
+## 🚀 Overview
 
-🚀 Features:
+The **AI Legal Assistant** allows users to:
 
-🔍 Semantic Legal Case Search using FAISS + Sentence Transformers
+* Search legal cases using natural language
+* Understand complex judgments in simple terms
+* Explore similar cases
+* Get structured legal explanations
 
-🤖 AI Explanation Generation using Mistral (via Ollama)
+This system combines **semantic search (FAISS)** with **LLM (Mistral via Ollama)** to deliver accurate and explainable legal insights.
 
-📊 Legal Case Similarity Recommendation
+---
 
-🌐 Streamlit Web Interface
+## ✨ Key Features
 
-🇮🇳 Indian Legal Dataset Support
+### 🔍 Hybrid Legal Search Engine
 
+* Exact case name matching
+* Keyword-based classification
+* Semantic search using FAISS
 
+### 🧠 AI-Powered Explanation
 
-🧠 Technologies Used:
+* Converts complex legal judgments into:
 
-| Category        | Technology             |
-| --------------- | ---------------------- |
-| Programming     | Python                 |
-| Frontend        | Streamlit              |
-| AI Embeddings   | Sentence Transformers  |
-| Vector Search   | FAISS                  |
-| LLM             | Ollama (Mistral Model) |
-| Data Processing | Pandas, NumPy          |
-| ML Utilities    | Scikit-Learn           |
+  * What Happened
+  * Background
+  * Legal Issue
+  * Court Decision
+  * Reason
+  * Final Outcome
 
+### ⚖️ Case Classification System
 
+* Automatically categorizes cases:
 
-📊 Dataset:
+  * Criminal (Murder, Fraud, Theft, etc.)
+  * Constitutional Law
+  * Property & Civil Disputes
+  * Corporate, Taxation, Labour Law
 
-IndicLegalQA Dataset
+### 📊 Similar Case Retrieval
 
-Indian Legal Question Answer Dataset used for training and retrieval.
+* Finds related cases based on:
 
+  * Legal category
+  * Context similarity
 
-⚙️ Installation & Setup:
+### 💬 Smart Chat UI
 
-1️⃣ Clone Repository:
+* Suggested queries
+* Chat history
+* Stop generation feature
+* Confidence score visualization
 
+### 📄 Case Brief Export
+
+* Download structured legal summaries as PDF-ready HTML
+
+---
+
+## 🏗️ Tech Stack
+
+### Frontend
+
+* Streamlit (Interactive UI)
+
+### Backend / AI
+
+* Python
+* FAISS (Vector Search)
+* Sentence Transformers (`all-MiniLM-L6-v2`)
+* Ollama (Mistral LLM)
+
+### Data Processing
+
+* Pandas
+* NumPy
+
+---
+
+## 📦 Dependencies
+
+```
+streamlit
+pandas
+numpy
+faiss-cpu
+sentence-transformers
+torch
+scikit-learn
+scipy
+ollama
+altair
+```
+
+---
+
+## 📂 Project Structure
+
+```
+AI-Legal-Assistant/
+│
+├── app.py                  # Main Streamlit application
+├── requirements.txt        # Dependencies
+├── faiss_index.bin         # Vector index (auto-generated)
+├── IndicLegalQA Dataset/   # Dataset folder
+│
+├── notebooks/
+│   └── Legal_Search.ipynb
+│
+└── assets/
+    └── UI images / icons
+```
+
+---
+
+## ⚙️ How It Works
+
+### 1. Data Loading
+
+* Loads legal dataset (IndicLegalQA)
+* Cleans and normalizes case names
+
+### 2. Case Classification
+
+* Uses regex-based taxonomy for legal categories
+
+### 3. Embedding Generation
+
+* Converts questions into vectors using SentenceTransformer
+
+### 4. FAISS Indexing
+
+* Stores embeddings for fast similarity search
+
+### 5. Hybrid Search Pipeline
+
+* Case name match
+* Crime/category match
+* Semantic similarity (FAISS)
+
+### 6. AI Response Generation
+
+* Uses Mistral via Ollama
+* Structured prompt engineering for clear output
+
+---
+
+## ▶️ How to Run Locally
+
+### 1. Clone Repository
+
+```
 git clone https://github.com/Manthan0603/AI-Legal-Assistant-Indian-Law.git
-
 cd AI-Legal-Assistant-Indian-Law
+```
 
-2️⃣ Install Dependencies:
+### 2. Install Dependencies
 
+```
 pip install -r requirements.txt
+```
 
-3️⃣ Install Ollama (If Not Installed):
+### 3. Start Ollama (Important)
 
-Download from:
-👉 https://ollama.com
-
-Run model:
+```
 ollama run mistral
+```
 
-4️⃣ Run Streamlit App:
+### 4. Run App
 
+```
 streamlit run app.py
+```
 
+---
 
-💻 Application Usage:
+## 📊 Dataset
 
-Enter legal query
+* Dataset: **IndicLegalQA (10K cases)**
+* Contains:
 
-System retrieves similar legal case
+  * Case name
+  * Question
+  * Answer
+  * Judgment details
 
-AI generates simplified explanation
+---
 
-Similar cases are suggested
+## 🎯 Use Cases
 
+* Law students (case understanding)
+* Legal researchers
+* Quick legal insights for general users
+* AI-based legal analytics systems
 
-🖥️ Sample Queries:
+---
 
-Corruption cases in India
+## ⚠️ Limitations
 
-Army promotion dispute Supreme Court case
+* Depends on dataset quality
+* Not a substitute for professional legal advice
+* Requires local LLM setup (Ollama)
 
-BCCI related legal cases
+---
 
-CBI investigation cases
+## 🔮 Future Enhancements
 
+* Multi-language support (Hindi, Gujarati)
+* Voice-based legal assistant
+* Cloud deployment (Streamlit Cloud / AWS)
+* Legal citation generator
+* Real-time case updates
 
-🔮 Future Improvements:
+---
 
-Chat History Support
+## 👨‍💻 Author
 
-Case PDF Linking
+**Manthan Mangaroliya**
+ AI/ML Enthusiast
 
-Multi-language Support (Hindi / Gujarati)
+---
 
-Online Deployment
-
-Voice Input Support
-
-
-👨‍💻 Author:
-
-Manthan Mangaroliya
-
-B.Tech Information Technology
-
-
-📜 License:
+## 📜 License
 
 This project is for educational and research purposes.
