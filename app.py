@@ -923,14 +923,6 @@ Explain the case clearly to a person with NO legal background.
 ===============================
 OUTPUT FORMAT (STRICT):
 
-:material/label: **Case:** (Extract from data)  
-:material/event: **Date:** (Extract from data)  
-:material/category: **Type:** (Extract from data)  
-
-:material/psychology: **Quick Summary:**  
-- Write a clear paragraph summary (3–4 lines, NOT bullets)
-
----
 
 :material/receipt_long: **What Happened:**
 - Explain the incident clearly
