@@ -656,33 +656,21 @@ model = load_model()
 # =================================================
 
 
-import os
-
 @st.cache_resource
-def build_index(df):
+def load_faiss_index():
+    import os
+    import faiss
+
     index_file = "faiss_index.bin"
 
-    # ================= LOAD EXISTING INDEX =================
-    if os.path.exists(index_file):
-        index = faiss.read_index(index_file)
-        return index
+    # ✅ Check if index exists
+    if not os.path.exists(index_file):
+        st.error("❌ FAISS index not found. Please run create_index.py first.")
+        st.stop()
 
-    # ================= CREATE NEW INDEX =================
-    questions = df["question"].astype(str).tolist()
-
-    embeddings = model.encode(questions, show_progress_bar=True)
-    embeddings = np.array(embeddings).astype("float32")
-
-    dimension = embeddings.shape[1]
-
-    index = faiss.IndexFlatL2(dimension)
-    index.add(embeddings)
-
-    # ================= SAVE INDEX =================
-    faiss.write_index(index, index_file)
-
-    return index
-
+    # ✅ Load index
+    index = faiss.read_index(index_file)
+    return index  
 
 # =================================================
 # FUNCTION: ai_search_top_cases
@@ -1134,7 +1122,7 @@ def generate_brief_html(p_name, judgment_date, case_type, user_question, header_
     return html
 
 
-index = build_index(df)
+index = load_faiss_index()
 
 
 # =================================================
